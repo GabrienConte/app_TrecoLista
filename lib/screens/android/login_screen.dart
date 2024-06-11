@@ -7,32 +7,60 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('Treco lista'),
+        backgroundColor: Colors.lightBlueAccent,
       ),
-      body: Container(
-        color: Colors.deepPurpleAccent,
-        padding: EdgeInsets.symmetric(vertical: 25.0),
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Dashboard()
-            ));
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.purple,
-            padding: EdgeInsets.all(20.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30.0)
-            )
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextField(
+                  //controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  //controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Senha',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // Ação para "Esqueci minha senha"
+                    },
+                    child: Text('Esqueci minha senha'),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // Ação para login
+                  },
+                  child: Text('Login'),
+                ),
+                SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    // Ação para "Não tem cadastro? Cadastre-se"
+                  },
+                  child: Text('Não tem cadastro? Cadastre-se'),
+                ),
+              ],
+            ),
           ),
-          child: Text('Login', style: TextStyle(
-            color: Colors.white,
-            letterSpacing: 1.5,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold
-          ),),
-        )
+        ),
       ),
     );
   }

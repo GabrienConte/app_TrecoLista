@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:treco_lista_app/screens/android/login_screen.dart';
 import '../../src/fill_image_card.dart';
 
 class Dashboard extends StatelessWidget {
@@ -142,6 +143,16 @@ class Dashboard extends StatelessWidget {
             Divider(),
             ListTile(
               title: Text('Treco Lista'),
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Sair'),
+              onTap: () => {
+                Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => Login()
+                ))
+              },
             )
           ],
         ),
