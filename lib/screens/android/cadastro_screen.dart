@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:treco_lista_app/screens/android/cadastro_screen.dart';
-import 'package:treco_lista_app/screens/android/dashboard.dart';
 
-class Login extends StatefulWidget {
+class CadastroUsuario extends StatefulWidget {
+
   @override
-  State<Login> createState() => _LoginState();
+  State<CadastroUsuario> createState() => _CadastroUsuarioState();
 }
 
-class _LoginState extends State<Login> {
+class _CadastroUsuarioState extends State<CadastroUsuario> {
+  final TextEditingController _usernameController = TextEditingController();
+
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _passwordController = TextEditingController();
@@ -16,7 +17,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Treco lista'),
+        title: Text('Cadastrar Usuário'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: Padding(
@@ -26,6 +27,14 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                TextField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Login',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -42,33 +51,12 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // Ação para "Esqueci minha senha"
-                    },
-                    child: Text('Esqueci minha senha'),
-                  ),
-                ),
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => Dashboard()
-                    ));
+                    // Ação para registrar o usuário
                   },
-                  child: Text('Login'),
-                ),
-                SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => CadastroUsuario()
-                    ));
-                  },
-                  child: Text('Não tem cadastro? Cadastre-se'),
+                  child: Text('Cadastrar'),
                 ),
               ],
             ),

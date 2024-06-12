@@ -1,46 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:treco_lista_app/screens/android/login_screen.dart';
+import 'package:treco_lista_app/screens/android/produto/produto_form_screen.dart';
+import 'package:treco_lista_app/screens/notificacao_screen.dart';
+import '../../models/Produto.dart';
 import '../../src/fill_image_card.dart';
+import 'Categoria/categoria_screen.dart';
+import 'adm/adm_srceen.dart';
+import 'login_screen.dart';
 
-class Dashboard extends StatelessWidget {
-  // This controller will store the value of the search bar
+class Dashboard extends StatefulWidget {
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   final TextEditingController _searchController = TextEditingController();
+  final List<Produto> produtos = [
+    Produto(nome: "Produto 1", preco: .99, categoria: "Categoria A"),
+    Produto(nome:"Produto 2", preco: 59.99,categoria:"Categoria B"),
+    Produto(nome:"Produto 3", preco: 9.99, categoria: "Categoria C"),
+  ];
+
+  void _navigateToProductForm({Produto? produto}) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ProdutoFormScreen(
+        produto: produto,
+        onSave: (Produto produto) {
+          setState(() {
+            if (produto != null) {
+              final index = produtos.indexWhere((p) => p.nome == produto.nome);
+              if (index >= 0) {
+                produtos[index] = produto;
+              } else {
+                produtos.add(produto);
+              }
+            }
+          });
+        },
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: Text('Produtos'),
+        backgroundColor: Colors.lightBlueAccent,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _navigateToProductForm(),
         icon: Icon(Icons.add),
         label: Text("Produto"),
       ),
       body: SingleChildScrollView(
-        //color: Colors.blue,
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                // Add padding around the search bar
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                // Use a Material design search bar
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Pesquisar...',
-                    // Add a clear button to the search bar
                     suffixIcon: IconButton(
                       icon: Icon(Icons.clear),
                       onPressed: () => _searchController.clear(),
                     ),
-                    // Add a search icon or button to the search bar
                     prefixIcon: IconButton(
                       icon: Icon(Icons.search),
                       onPressed: () {
-                        // Perform the search here
+                        // Implement search logic
                       },
                     ),
                     border: OutlineInputBorder(
@@ -55,52 +85,25 @@ class Dashboard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children: <Widget>[
-                        FillImageCard(
-                          width: 250,
-                          heightImage: 160,
-                          imageProvider: AssetImage('assets/mockup.png'),
-                          tags: [
-                            _tag('Category', () {}),
-                            _tag('Product', () {}),
-                          ],
-                          title: _title(),
-                          description: _content(),
-                        ),
-                        const SizedBox(height: 12),
-                        FillImageCard(
-                          width: 250,
-                          heightImage: 160,
-                          imageProvider: AssetImage('assets/mockup.png'),
-                          tags: [
-                            _tag('Category', () {}),
-                            _tag('Product', () {}),
-                          ],
-                          title: _title(),
-                          description: _content(),
-                        ),
-                        const SizedBox(height: 12),
-                        FillImageCard(
-                          width: 250,
-                          heightImage: 160,
-                          imageProvider: AssetImage('assets/mockup.png'),
-                          tags: [
-                            _tag('Category', () {}),
-                            _tag('Product', () {}),
-                          ],
-                          title: _title(),
-                          description: _content(),
-                        ),
-                        const SizedBox(height: 12),
+                children: produtos.map((produto) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      print('Produto: ${produto.nome}, Preço: R\$${produto.preco}');
+                      _navigateToProductForm(produto: produto);
+                    },
+                    child: FillImageCard(
+                      width: 250,
+                      heightImage: 160,
+                      imageProvider: AssetImage('assets/mockup.png'),
+                      tags: [
+                        _tag(produto.categoria, () {}),
                       ],
+                      title: _title(produto.nome),
+                      description: _content(produto.preco),
                     ),
                   ),
-                ],
+                )).toList(),
               ),
             ),
           ],
@@ -119,7 +122,9 @@ class Dashboard extends StatelessWidget {
               otherAccountsPictures: [
                 ListTile(
                   leading: Icon(Icons.notifications, color: Colors.white,),
-                  onTap: () => (),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => NotificacaoScreen()
+                  )),
                 )
               ],
               accountName: Text('Gabriel Conte'),
@@ -128,17 +133,23 @@ class Dashboard extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.shopping_cart),
               title: Text('Seus Produtos'),
-              onTap: () => (),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Dashboard()
+              )),
             ),
             ListTile(
               leading: Icon(Icons.shopping_bag),
               title: Text('Outros Produtos'),
-              onTap: () => (),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Dashboard()
+              )),
             ),
             ListTile(
               leading: Icon(Icons.category),
               title: Text('Categorias'),
-              onTap: () => (),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => CategoriaSrceen()
+              )),
             ),
             Divider(),
             ListTile(
@@ -146,13 +157,19 @@ class Dashboard extends StatelessWidget {
             ),
             Divider(),
             ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Adm'),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AdmSrceen()
+              )),
+            ),
+            Divider(),
+            ListTile(
               leading: Icon(Icons.logout),
               title: Text('Sair'),
-              onTap: () => {
-                Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Login()
-                ))
-              },
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Login()
+              )),
             )
           ],
         ),
@@ -160,43 +177,34 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  Widget _msgSuperiorTXT() {
-    return Container(
-      color: Colors.amberAccent,
-      alignment: Alignment.topRight,
-      padding: const EdgeInsets.all(8.0),
-      child: Text('Texto'),
+  Widget _title(String title) {
+    return Text(
+      title,
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     );
   }
-}
 
-Widget _title({Color? color}) {
-  return Text(
-    'Card title',
-    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color),
-  );
-}
+  Widget _content(double price) {
+    return Text(
+      'Preço: R\$${price.toStringAsFixed(2)}',
+      style: TextStyle(color: Colors.black),
+    );
+  }
 
-Widget _content({Color? color}) {
-  return Text(
-    'This a card description',
-    style: TextStyle(color: color),
-  );
-}
-
-Widget _tag(String tag, VoidCallback onPressed) {
-  return InkWell(
-    onTap: onPressed,
-    child: Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        color: Colors.green,
+  Widget _tag(String tag, VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: Colors.green,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: Text(
+          tag,
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      child: Text(
-        tag,
-        style: TextStyle(color: Colors.white),
-      ),
-    ),
-  );
+    );
+  }
 }
