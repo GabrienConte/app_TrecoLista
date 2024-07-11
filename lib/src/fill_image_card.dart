@@ -10,7 +10,8 @@ class FillImageCard extends StatelessWidget {
     this.heightImage,
     this.borderRadius = 6,
     this.contentPadding,
-    required this.imageProvider,
+    this.imageProvider,
+    this.imageUrl,
     this.tags,
     this.title,
     this.description,
@@ -42,7 +43,10 @@ class FillImageCard extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
 
   /// image provider
-  final ImageProvider imageProvider;
+  final ImageProvider? imageProvider;
+
+  /// image URL
+  final String? imageUrl;
 
   /// list of widgets
   final List<Widget>? tags;
@@ -77,11 +81,24 @@ class FillImageCard extends StatelessWidget {
               topLeft: Radius.circular(borderRadius),
               topRight: Radius.circular(borderRadius),
             ),
-            child: Image(
-              image: imageProvider,
+            child: imageProvider != null
+                ? Image(
+              image: imageProvider!,
               width: width,
               height: heightImage,
               fit: BoxFit.cover,
+            )
+                : imageUrl != null
+                ? Image.network(
+              imageUrl!,
+              width: width,
+              height: heightImage,
+              fit: BoxFit.cover,
+            )
+                : Container(
+              width: width,
+              height: heightImage,
+              color: Colors.grey,
             ),
           ),
           ImageCardContent(

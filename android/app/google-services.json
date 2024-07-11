@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "123528931153",
+    "project_id": "treco-lista",
+    "storage_bucket": "treco-lista.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123528931153:android:77873c926fe7bae4649570",
+        "android_client_info": {
+          "package_name": "com.example.treco_lista_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfmeQiGgzN_DI03jq4O4VBw1rHce4txQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

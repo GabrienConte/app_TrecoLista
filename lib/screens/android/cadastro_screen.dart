@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:treco_lista_app/core/service/usuario_service.dart';
+import 'package:treco_lista_app/screens/android/login_screen.dart';
 
 class CadastroUsuario extends StatefulWidget {
 
@@ -7,11 +9,33 @@ class CadastroUsuario extends StatefulWidget {
 }
 
 class _CadastroUsuarioState extends State<CadastroUsuario> {
-  final TextEditingController _usernameController = TextEditingController();
-
+  final TextEditingController _loginController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final UsuarioService _usuarioService = UsuarioService();
 
-  final TextEditingController _passwordController = TextEditingController();
+  void _cadastrar() async {
+    final login = _loginController.text;
+    final email = _emailController.text;
+    final senha = _senhaController.text;
+
+    final errorMessage = await _usuarioService.cadastrarUsuario(login, email, senha);
+
+    if (errorMessage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Usuário cadastrado com sucesso!'),
+        backgroundColor: Colors.green,
+      ));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => Login()
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erro ao cadastrar usuario'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +52,7 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextField(
-                  controller: _usernameController,
+                  controller: _loginController,
                   decoration: InputDecoration(
                     labelText: 'Login',
                     border: OutlineInputBorder(),
@@ -44,7 +68,7 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                 ),
                 SizedBox(height: 16),
                 TextField(
-                  controller: _passwordController,
+                  controller: _senhaController,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Senha',
@@ -53,9 +77,7 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    // Ação para registrar o usuário
-                  },
+                  onPressed: _cadastrar,
                   child: Text('Cadastrar'),
                 ),
               ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:treco_lista_app/core/service/categoria_service.dart';
 import 'package:treco_lista_app/screens/android/Categoria/categoria_detalhe_screen.dart';
 
-import '../../../models/Categoria.dart';
+import '../../../core/models/categoria_model.dart';
 import 'categoria_add_screen.dart';
 
 class CategoriaSrceen extends StatefulWidget {
@@ -10,23 +11,35 @@ class CategoriaSrceen extends StatefulWidget {
 }
 
 class _CategoryListScreenState extends State<CategoriaSrceen> {
-  final List<Categoria> categories = [
-    Categoria(description: "Categoria 1", isActive: true),
-    Categoria(description: "Categoria 2", isActive: false),
-    Categoria(description: "Categoria 3", isActive: true),
-    // Adicione mais categorias conforme necessário
-  ];
+  final CategoriaService _categoriaService = CategoriaService();
+  List<Categoria> categorias = [];
 
   String searchQuery = "";
 
+  void _carregarCategorias() async {
+    try {
+      List<Categoria> categoriasCarregadas = await _categoriaService.getCategoriasAtivas();
+      setState(() {
+        categorias = categoriasCarregadas;
+      });
+    } catch (e) {
+      print('Erro ao carregar produtos: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarCategorias();
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Categoria> filteredCategories = categories
-        .where((category) => category.description
+    List<Categoria> filteredCategories = categorias
+        .where((categoria) => categoria.descricao
         .toLowerCase()
         .contains(searchQuery.toLowerCase()))
         .toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Categorias'),
@@ -52,23 +65,23 @@ class _CategoryListScreenState extends State<CategoriaSrceen> {
               child: ListView.builder(
                 itemCount: filteredCategories.length,
                 itemBuilder: (context, index) {
-                  final category = filteredCategories[index];
+                  final categoria = filteredCategories[index];
                   return ListTile(
-                    title: Text(category.description),
+                    title: Text(categoria.descricao),
                     trailing: Icon(
-                      category.isActive ? Icons.check_circle : Icons.cancel,
-                      color: category.isActive ? Colors.green : Colors.red,
+                      categoria.ativo ? Icons.check_circle : Icons.cancel,
+                      color: categoria.ativo ? Colors.green : Colors.red,
                     ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoriaDetalheSrceen(
-                            category: category
-                          ),
-                        ),
-                      );
-                    },
+                    // onTap: () {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => CategoriaDetalheSrceen(
+                    //         categoria: categoria
+                    //       ),
+                    //     ),
+                    //   );
+                    // },
                   );
                 },
               ),
@@ -76,19 +89,19 @@ class _CategoryListScreenState extends State<CategoriaSrceen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CategoriaAddSrceen(onSave: (category) {
-              setState(() {
-                categories.add(category);
-              });
-            })),
-          );
-        },
-        child: Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => CategoriaAddSrceen(onSave: (categoria) {
+      //         setState(() {
+      //           categories.add(categoria);
+      //         });
+      //       })),
+      //     );
+      //   },
+      //   child: Icon(Icons.add),
+      // ),
     );
   }
 }

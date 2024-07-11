@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models/Produto.dart';
+import '../../core/models/produto_models/produto_model.dart';
 
 class NotificacaoScreen extends StatelessWidget {
 
   final List<Produto> produtos = [
-    Produto(nome: "Produto 1", preco: 29.99, categoria: "Categoria A", link: "assets/mockup.png"),
-    Produto(nome: "Produto 2", preco: 59.99, categoria: "Categoria B", link: "assets/mockup.png"),
-    Produto(nome: "Produto 3", preco: 19.99, categoria: "Categoria C", link: "assets/mockup.png"),
+    // Produto(nome: "Produto 1", preco: 29.99, categoria: "Categoria A", link: "assets/mockup.png"),
+    // Produto(nome: "Produto 2", preco: 59.99, categoria: "Categoria B", link: "assets/mockup.png"),
+    // Produto(nome: "Produto 3", preco: 19.99, categoria: "Categoria C", link: "assets/mockup.png"),
   ];
 
   @override
@@ -30,11 +30,11 @@ class NotificacaoScreen extends StatelessWidget {
                   height: 50,
                   fit: BoxFit.cover,
                 ),
-                title: Text(produto.nome),
+                title: Text(produto.descricao),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Preço: R\$${produto.preco.toStringAsFixed(2)}'),
+                    Text('Preço: R\$${produto.valor.toStringAsFixed(2)}'),
                     SizedBox(height: 4),
                     Text('Texto genérico da notificação.'),
                   ],

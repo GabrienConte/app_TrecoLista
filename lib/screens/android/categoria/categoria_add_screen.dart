@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/Categoria.dart';
+import '../../../core/models/categoria_model.dart';
 
 class CategoriaAddSrceen extends StatefulWidget {
   final Function(Categoria) onSave;
@@ -50,8 +50,9 @@ class _AddCategoryScreenState extends State<CategoriaAddSrceen> {
             ElevatedButton(
               onPressed: () {
                 final newCategory = Categoria(
-                  description: _descriptionController.text,
-                  isActive: _isActive,
+                  id: 0,
+                  descricao: _descriptionController.text,
+                  ativo: _isActive,
                 );
                 widget.onSave(newCategory);
                 Navigator.pop(context);

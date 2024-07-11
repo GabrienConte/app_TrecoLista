@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/Categoria.dart';
+import '../../../core/models/categoria_model.dart';
 
 class CategoriaDetalheSrceen extends StatefulWidget {
   final Categoria category;
@@ -18,8 +18,8 @@ class _CategoriaDetalheSrceenState extends State<CategoriaDetalheSrceen> {
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.category.description);
-    _isActive = widget.category.isActive;
+    _descriptionController = TextEditingController(text: widget.category.descricao);
+    _isActive = widget.category.ativo;
   }
 
   @override
@@ -58,8 +58,9 @@ class _CategoriaDetalheSrceenState extends State<CategoriaDetalheSrceen> {
             ElevatedButton(
               onPressed: () {
                 final updatedCategory = Categoria(
-                  description: _descriptionController.text,
-                  isActive: _isActive,
+                  id: 0,
+                  descricao: _descriptionController.text,
+                  ativo: _isActive,
                 );
                 Navigator.pop(context);
               },

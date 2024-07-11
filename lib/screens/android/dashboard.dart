@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:treco_lista_app/screens/android/produto/produto_form_screen.dart';
-import 'package:treco_lista_app/screens/notificacao_screen.dart';
-import '../../models/Produto.dart';
+import 'package:treco_lista_app/screens/android/notificacao_screen.dart';
+import '../../core/models/produto_models/produto_card_model.dart';
+import '../../core/service/produto_service.dart';
 import '../../src/fill_image_card.dart';
 import 'Categoria/categoria_screen.dart';
-import 'adm/adm_srceen.dart';
 import 'login_screen.dart';
 
 class Dashboard extends StatefulWidget {
@@ -13,31 +13,31 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final ProdutoService _produtoService = ProdutoService();
   final TextEditingController _searchController = TextEditingController();
-  final List<Produto> produtos = [
-    Produto(nome: "Produto 1", preco: .99, categoria: "Categoria A"),
-    Produto(nome:"Produto 2", preco: 59.99,categoria:"Categoria B"),
-    Produto(nome:"Produto 3", preco: 9.99, categoria: "Categoria C"),
-  ];
+  List<ProdutoCard> produtoCards = [];
 
-  void _navigateToProductForm({Produto? produto}) {
+  void _carregarProdutos() async {
+    try {
+      List<ProdutoCard> produtosCarregados = await _produtoService.getProdutoCards();
+      setState(() {
+        produtoCards = produtosCarregados;
+      });
+    } catch (e) {
+      print('Erro ao carregar produtos: $e');
+    }
+  }
+
+  void _navigateToProductForm(String acaoForm, int? produtoId) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ProdutoFormScreen(
-        produto: produto,
-        onSave: (Produto produto) {
-          setState(() {
-            if (produto != null) {
-              final index = produtos.indexWhere((p) => p.nome == produto.nome);
-              if (index >= 0) {
-                produtos[index] = produto;
-              } else {
-                produtos.add(produto);
-              }
-            }
-          });
-        },
-      ),
+      builder: (context) => ProdutoFormScreen(acaoForm: acaoForm, produtoId: produtoId),
     ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarProdutos();
   }
 
   @override
@@ -48,7 +48,7 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Colors.lightBlueAccent,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToProductForm(),
+        onPressed: () => _navigateToProductForm('Criar', null),
         icon: Icon(Icons.add),
         label: Text("Produto"),
       ),
@@ -85,22 +85,21 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: produtos.map((produto) => Padding(
+                children: produtoCards.map((produtoCard) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: GestureDetector(
                     onTap: () {
-                      print('Produto: ${produto.nome}, Preço: R\$${produto.preco}');
-                      _navigateToProductForm(produto: produto);
+                      _navigateToProductForm('Editar', produtoCard.produtoId);
                     },
                     child: FillImageCard(
                       width: 250,
                       heightImage: 160,
-                      imageProvider: AssetImage('assets/mockup.png'),
+                      imageUrl: produtoCard.imagemPath,
                       tags: [
-                        _tag(produto.categoria, () {}),
+                        _tag(produtoCard.isFavoritado ? 'Favoritado' : 'Não Favoritado', () {}),
                       ],
-                      title: _title(produto.nome),
-                      description: _content(produto.preco),
+                      title: _title(produtoCard.descricao),
+                      description: _content(produtoCard.valor),
                     ),
                   ),
                 )).toList(),
@@ -137,13 +136,13 @@ class _DashboardState extends State<Dashboard> {
                   builder: (context) => Dashboard()
               )),
             ),
-            ListTile(
-              leading: Icon(Icons.shopping_bag),
-              title: Text('Outros Produtos'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => Dashboard()
-              )),
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.shopping_bag),
+            //   title: Text('Outros Produtos'),
+            //   onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            //       builder: (context) => Dashboard()
+            //   )),
+            // ),
             ListTile(
               leading: Icon(Icons.category),
               title: Text('Categorias'),
@@ -154,14 +153,6 @@ class _DashboardState extends State<Dashboard> {
             Divider(),
             ListTile(
               title: Text('Treco Lista'),
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Adm'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AdmSrceen()
-              )),
             ),
             Divider(),
             ListTile(
