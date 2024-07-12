@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:treco_lista_app/core/models/mensagem_model.dart';
+import 'package:treco_lista_app/core/persistence/mensagem_persistence.dart';
 
-import '../../core/models/produto_models/produto_model.dart';
 
-class NotificacaoScreen extends StatelessWidget {
+class NotificacaoScreen extends StatefulWidget {
+  @override
+  _NotificacaoScreenState createState() => _NotificacaoScreenState();
+}
 
-  final List<Produto> produtos = [
-    // Produto(nome: "Produto 1", preco: 29.99, categoria: "Categoria A", link: "assets/mockup.png"),
-    // Produto(nome: "Produto 2", preco: 59.99, categoria: "Categoria B", link: "assets/mockup.png"),
-    // Produto(nome: "Produto 3", preco: 19.99, categoria: "Categoria C", link: "assets/mockup.png"),
-  ];
+class _NotificacaoScreenState extends State<NotificacaoScreen> {
+  List<Mensagem> mensagens = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    var loadedMessages = await MensagemPersistence().getMensagems();
+    setState(() {
+      mensagens = loadedMessages;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,28 +31,17 @@ class NotificacaoScreen extends StatelessWidget {
         title: Text('Notificações'),
         backgroundColor: Colors.lightBlueAccent,
       ),
-      body: ListView.builder(
-        itemCount: produtos.length,
+      body: mensagens.isEmpty
+          ? Center(child: Text('Nenhuma notificação disponível.'))
+          : ListView.builder(
+        itemCount: mensagens.length,
         itemBuilder: (context, index) {
-          final produto = produtos[index];
+          final message = mensagens[index];
           return Column(
             children: [
               ListTile(
-                leading: Image.asset(
-                  produto.link,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-                title: Text(produto.descricao),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Preço: R\$${produto.valor.toStringAsFixed(2)}'),
-                    SizedBox(height: 4),
-                    Text('Texto genérico da notificação.'),
-                  ],
-                ),
+                title: Text(message.title),
+                subtitle: Text(message.body),
               ),
               Divider(),
             ],

@@ -361,6 +361,7 @@ class _ProductFormState extends State<ProdutoFormScreen> {
               plataformaId: _plataformaId!,
               prioridade: _prioridade!,
               isAvisado: _isAvisado,
+              imagemPath: _imagemPath
             );
             final resposta = await _produtoService.criarProduto(
                 produtoCreateDto);

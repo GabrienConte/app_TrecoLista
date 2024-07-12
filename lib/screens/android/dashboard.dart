@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:treco_lista_app/core/models/usuario_model.dart';
+import 'package:treco_lista_app/core/service/auth_service.dart';
 import 'package:treco_lista_app/screens/android/produto/produto_form_screen.dart';
 import 'package:treco_lista_app/screens/android/notificacao_screen.dart';
 import '../../core/models/produto_models/produto_card_model.dart';
@@ -15,6 +17,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final ProdutoService _produtoService = ProdutoService();
   final TextEditingController _searchController = TextEditingController();
+  final AuthService _authService = AuthService();
   List<ProdutoCard> produtoCards = [];
 
   void _carregarProdutos() async {
@@ -126,8 +129,8 @@ class _DashboardState extends State<Dashboard> {
                   )),
                 )
               ],
-              accountName: Text('Gabriel Conte'),
-              accountEmail: Text('gabrielconte0@gmail.com'),
+              accountName: Text(''),
+              accountEmail: Text(''),
             ),
             ListTile(
               leading: Icon(Icons.shopping_cart),
@@ -146,9 +149,12 @@ class _DashboardState extends State<Dashboard> {
             ListTile(
               leading: Icon(Icons.category),
               title: Text('Categorias'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              onTap: () => {
+                _authService.logout(),
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => CategoriaSrceen()
-              )),
+                )),
+              }
             ),
             Divider(),
             ListTile(

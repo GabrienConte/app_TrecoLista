@@ -63,7 +63,6 @@ class ProdutoService extends AbstractService{
   }
 
   Future<String?> criarProduto(ProdutoCreateDto produtoDto) async {
-    print(produtoDto);
     FormData formData = FormData.fromMap({
       'Link': produtoDto.link,
       'Descricao': produtoDto.descricao,
@@ -79,7 +78,6 @@ class ProdutoService extends AbstractService{
       //   ),
       if (produtoDto.imagemPath != null) 'ImagemPath': produtoDto.imagemPath,
     });
-    print(formData);
     final response = await dio.post(
         '${AbstractService.baseUrl}/produto',
         data: formData,
