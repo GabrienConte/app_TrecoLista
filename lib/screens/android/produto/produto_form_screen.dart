@@ -6,8 +6,11 @@ import 'package:treco_lista_app/core/models/plataforma_model.dart';
 import 'package:treco_lista_app/core/service/categoria_service.dart';
 import 'package:treco_lista_app/core/service/plataforma_service.dart';
 import 'package:treco_lista_app/core/service/produto_service.dart';
+import 'package:treco_lista_app/screens/android/dashboard.dart';
 
+import '../../../core/models/produto_models/produto_create_dto.dart';
 import '../../../core/models/produto_models/produto_model.dart';
+import '../../../core/models/produto_models/produto_update_dto.dart';
 
 class ProdutoFormScreen extends StatefulWidget {
   final String acaoForm;
@@ -30,10 +33,9 @@ class _ProductFormState extends State<ProdutoFormScreen> {
   TextEditingController _valorController = TextEditingController();
   int? _plataformaId;
   int? _categoriaId;
-  int? _prioridade;
+  int? _prioridade = 1;
   bool _isAvisado = false;
-  String? _imagemPath;
-  String? _imagemUrl;
+  String _imagemPath = '';
   bool isOutraPlataforma = false;
 
   // Lista de plataformas e categorias
@@ -44,7 +46,6 @@ class _ProductFormState extends State<ProdutoFormScreen> {
   void initState() {
     super.initState();
     if (widget.acaoForm == 'Editar' || widget.acaoForm == 'Detalhes') {
-      // Carregar dados do produto caso esteja em modo de edição ou detalhes
       carregarProduto(widget.produtoId!);
     }
     carregarDropdowns();
@@ -71,20 +72,51 @@ class _ProductFormState extends State<ProdutoFormScreen> {
       _linkController.text = produto.link;
       _descricaoController.text = produto.descricao;
       _valorController.text = produto.valor.toString();
-      // _linkController.text = produto.link;
-      // _descricaoController.text = produto.descricao;
       _plataformaId = produto.plataformaId;
       _categoriaId = produto.categoriaId;
-      // _valorController.text = produto.valor.toString();
+      _prioridade = produto.prioridade;
       _isAvisado = produto.aviso;
-      //_imagemUrl = produto.imagemUrl;
       _imagemPath = produto.imagemPath;
-      // Outros campos do formulário podem ser preenchidos aqui
     }).catchError((error) {
       print('Erro ao carregar produto: $error');
-      // Trate o erro conforme necessário
     });
   }
+
+  void _carregarProdutoInfo(String link) async {
+    try {
+      Map<String, dynamic>? produtoInfo = await _produtoService.getProdutoInfoScrap(link);
+      if (produtoInfo != null) {
+        setState(() {
+          _descricaoController.text = produtoInfo['descricao'] ?? '';
+          _valorController.text = produtoInfo['valorConvertido'].toString();
+          _imagemPath = produtoInfo['imagemPath'] ?? '';
+          String? plataformaNome = produtoInfo['plataforma'];
+          if (plataformaNome != null) {
+            Plataforma? plataformaSelecionada = _plataformas.firstWhere(
+                  (plataforma) => plataforma.descricao == plataformaNome,
+              orElse: () => Plataforma(id: -1, descricao: ''),
+            );
+            if (plataformaSelecionada.id != -1) {
+              _plataformaId = plataformaSelecionada.id;
+            }
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Falha ao carregar detalhes do produto!'),
+          backgroundColor: Colors.red,
+        ));
+        print('Falha ao carregar detalhes do produto');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Envie um link válido!'),
+        backgroundColor: Colors.red,
+      ));
+      print('Erro ao conectar ao servidor: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isEditing = widget.acaoForm == 'Editar';
@@ -108,6 +140,15 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                     labelText: 'Link',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Informe o link';
+                    }
+                    return null;
+                  },
+                  onEditingComplete: () {
+                    _carregarProdutoInfo(_linkController.text);
+                  },
                   readOnly: isEditing,
                 ),
                 SizedBox(height: 16),
@@ -117,6 +158,12 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                     labelText: 'Descrição',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Informe a descrição';
+                    }
+                    return null;
+                  },
                   readOnly: isEditing || !isOutraPlataforma,
                 ),
                 SizedBox(height: 16),
@@ -134,6 +181,12 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                       isOutraPlataforma = value == 4;
                     });
                   },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Selecione uma plataforma';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     labelText: 'Plataforma',
                     border: OutlineInputBorder(),
@@ -148,6 +201,12 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                     labelText: 'Valor',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Informe o valor';
+                    }
+                    return null;
+                  },
                   readOnly: isEditing || !isOutraPlataforma,
                 ),
                 SizedBox(height: 16),
@@ -168,11 +227,17 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                     labelText: 'Categoria',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Selecione uma categoria';
+                    }
+                    return null;
+                  },
                 ),
                 if (widget.acaoForm != 'Detalhes') ...[
                   SizedBox(height: 16),
                   DropdownButtonFormField<int>(
-                    value: 1, // Valor inicial, ajuste conforme necessário
+                    value: _prioridade, // Valor inicial, ajuste conforme necessário
                     items: [
                       DropdownMenuItem(value: 1, child: Text('Baixa')),
                       DropdownMenuItem(value: 5, child: Text('Média')),
@@ -216,7 +281,7 @@ class _ProductFormState extends State<ProdutoFormScreen> {
                 SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    _submitForm();
+                      _submitForm();
                   },
                   child: Text('Salvar'),
                 ),
@@ -235,7 +300,7 @@ class _ProductFormState extends State<ProdutoFormScreen> {
   }
 
   Widget _buildImagePreview() {
-    if (_imagemPath != null) {
+    if (_imagemPath != '') {
       return Image.network(_imagemPath!, width: 250, height: 250,);
     } else {
       return Container(
@@ -254,20 +319,70 @@ class _ProductFormState extends State<ProdutoFormScreen> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _imagemUrl = pickedFile.path;
         _imagemPath = pickedFile.path;
       });
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Lógica para enviar os dados do formulário
-      // Exemplo de envio de dados para serviço
-      // productService.criarProduto(...);
-      // productService.editarProduto(...);
-      // Utilize os dados dos controllers e variáveis de estado para enviar para a API
-      Navigator.of(context).pop(); // Fecha a tela após salvar
-    }
+  Future<void> _submitForm() async {
+      try {
+        if (_formKey.currentState!.validate()) {
+          if (widget.produtoId != null) {
+            // Modo de edição: chama a função onUpdatePressed com os dados atualizados
+            final produtoUpdateDto = ProdutoUpdateDto(
+              categoriaId: _categoriaId!,
+              plataformaId: _plataformaId!,
+              prioridade: _prioridade!,
+              isAvisado: _isAvisado,
+            );
+            final resposta = await _produtoService.atualizaProduto(
+                widget.produtoId!, produtoUpdateDto);
+            if (resposta) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Produto atualizado com sucesso!'),
+                backgroundColor: Colors.green,
+              ));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Dashboard()
+              ));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Erro ao atualizar produto!'),
+                backgroundColor: Colors.red,
+              ));
+            }
+          } else {
+            // Modo de criação: chama a função onCreatePressed com os dados do novo produto
+            final produtoCreateDto = ProdutoCreateDto(
+              link: _linkController.text,
+              descricao: _descricaoController.text,
+              valor: _valorController.text.replaceAll('.', ','),
+              categoriaId: _categoriaId!,
+              plataformaId: _plataformaId!,
+              prioridade: _prioridade!,
+              isAvisado: _isAvisado,
+            );
+            final resposta = await _produtoService.criarProduto(
+                produtoCreateDto);
+            if (resposta == null) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Produto cadastrado com sucesso!'),
+                backgroundColor: Colors.green,
+              ));
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Dashboard()
+              ));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Erro ao cadastrar produto!'),
+                backgroundColor: Colors.red,
+              ));
+            }
+          }
+        }
+      } catch (e) {
+        // Lidar com exceções
+        print('Erro ao criar produto: $e');
+      }
   }
 }

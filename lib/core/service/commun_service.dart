@@ -15,4 +15,22 @@ abstract class AbstractService{
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
+
+  Future<Map<String, dynamic>> getHeaderToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    return {
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future<Map<String, String>> getHeadersSemContent() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    return {
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
 }
